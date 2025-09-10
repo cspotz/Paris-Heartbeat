@@ -1,5 +1,6 @@
 # Paris-Heartbeat
-In order to gear up my data science skills, I recently became interested in Vélib bike-sharing data. Biking in Paris is a very common practice, at a point that the mayor Anne Hidalgo was maybe a bit too quick to [mention](https://www.leparisien.fr/international/hidalgo-suggere-plus-de-velos-a-kiev-les-dessous-dune-phrase-maladroite-01-12-2022-PNK3JE7ZHNFBZA5WTYDV65LD3U.php) (back in 2022 !!) bikes to Kiev for post-war reconstruction. To put the figures, 0.5 millions rides of Vélib occur per day, to be compared to 4 million daily rides on the metro and 1.1 million daily car trips within the 2.1 million inhabitants city.
+In order to gear up my data science skills, I recently became interested in Vélib bike-sharing data. Biking in Paris is a very common practice, at a point that the mayor Anne Hidalgo was maybe a bit too quick to [mention](https://www.leparisien.fr/international/hidalgo-suggere-plus-de-velos-a-kiev-les-dessous-dune-phrase-maladroite-01-12-2022-PNK3JE7ZHNFBZA5WTYDV65LD3U.php) (back in 2022 !!) bikes to Kiev for post-war reconstruction 🤨. 
+To put the figures, 0.5 millions rides of Vélib occur per day, to be compared to 4 million daily rides on the metro and 1.1 million daily car trips within the 2.1 million inhabitants city.
 
 While Vélib data is only a biased tracer of Paris's total motion (it is restricted to a non-representative subset of users), it still provides very insightful clues about urban dynamics. This journey through Parisian data is the perfect excuse to learn and practice key technical skills, including:
 *    **Pandas** for data management and manipulation.
@@ -60,3 +61,23 @@ In my case, I run it every 10 minutes from 7th september to 22th september 2025.
 # Start the automated data collection
 sched.start()
 ```
+## Data inspection
+Let's first look at the raw data ``df_status`` that was downloaded in point 1 above.
+
+| station_id   | num_bikes_available | numBikesAvailable | num_bikes_available_types          | num_docks_available | numDocksAvailable | is_installed | is_returning | is_renting | last_reported | stationCode | station_opening_hours |
+|-------------|---------------------|-------------------|------------------------------------|---------------------|-------------------|-------------|-------------|-----------|--------------|------------|----------------------|
+| 213688169   | 3                   | 3                 | [{'mechanical': 1}, {'ebike': 2}]  | 32                  | 32                | 1           | 1           | 1         | 1757540462   | 16107      | None                 |
+| 19179944124 | 9                   | 9                 | [{'mechanical': 7}, {'ebike': 2}]  | 16                  | 16                | 1           | 1           | 1         | 1757540775   | 40001      | None                 |
+| 36255       | 5                   | 5                 | [{'mechanical': 5}, {'ebike': 0}]  | 16                  | 16                | 1           | 1           | 1         | 1757540598   | 9020       | None                 |
+
+Some data are redundant and some other fields are not relevant for this project, so I cleaned them in point 2. Regarding data privacy, note that there is no mention of user names nor specific bike trajectories (e.g., routes from point A to point B)—only the number of bikes available at each station. This design represents a balance between data privacy and open data policy.
+For a comprehensive description of the quantities in the table, the [doc](https://www.velib-metropole.fr/donnees-open-data-gbfs-du-service-velib-metropole= is a good place to go.
+
+## Station-Level Time Series Analysis
+I chose Saint-Sulpice station (out of 1,469) as an example to visualize how bike availability evolves over time.
+![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/station_availability.png)
+<p align="center"><em>Bike and dock availability at Saint-Sulpice station over time</em></p>
+
+- Clear patterns emerge—the advertised _heart beats_ of Paris is visible. 
+- Occasionally, the station is completely empty of bikes (bad luck for the next user! 🤯). Let's see if we can predict that!
+- On September 10th, the amplitude of the “heartbeat” decreased significantly due to heavy rainfall in Paris.
