@@ -86,10 +86,10 @@ I chose Saint-Sulpice station (out of 1,469) as an example to visualize how bike
 ## Visualizing Station Occupancy and Anomaly detection
 Using GeoPandas and OpenStreetMap, it is possible to visualize, the availability of the bikes in the stations. 
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/Velib_availability.png)
-<p align="center"><em>Bike and dock availability at Saint-Sulpice station over time</em></p>
+<p align="center"><em>Geospatial Analysis of Station Availability</em></p>
 Green means a lot of bikes and red few bikes, while a cross indicate no bikes at all 🤯
 This visual inspection is worth it before delving into more involved data analysis. 
 
-Using Isolation Forest, an algorithm to detect "anomalies" in a given dataset, I could identify 147 (out of 1469) atypical stations including 16 station always full (over-utilization) and 5 stations always empty (under-utilization). A good tip for Vélib users 😉
+Using Isolation Forest, an algorithm to detect "anomalies" in a given dataset, I could identify 147 (out of 1469) atypical stations including 16 station always full (over-utilization) and 5 stations always empty (under-utilization). A good tip for Vélib users 😉, though it remains to be checked whether the altitude of the station impacts all of my analysis.
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/Velib_availability.png)
 <p align="center"><em>Bike and dock availability at Saint-Sulpice station over time</em></p>
