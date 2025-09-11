@@ -90,6 +90,7 @@ Using GeoPandas and OpenStreetMap, it is possible to visualize, the availability
 Green means a lot of bikes and red few bikes, while a cross indicate no bikes at all 🤯
 This visual inspection is worth it before delving into more involved data analysis. 
 
-Using Isolation Forest, an algorithm to detect "anomalies" in a given dataset, I could identify 147 (out of 1469) atypical stations including 16 station always full (over-utilization) and 5 stations always empty (under-utilization). A good tip for Vélib users 😉, though it remains to be checked whether the altitude of the station impacts all of my analysis.
+Using Isolation Forest, an algorithm to detect "anomalies" in a given dataset, I could identify 147 (out of 1469) atypical stations including 16 station always full (over-utilization) and 5 stations always empty (under-utilization).
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/Anomaly.png)
-<p align="center"><em>Bike and dock availability at Saint-Sulpice station over time</em></p>
+<p align="center"><em>Flies in the ointment? An analysis of anomalous pattern in the Vélib data/em></p>
+I analyzed the full datasets with all the timeframes, so the results is a good tip for Vélib users 😉, though it remains to be checked whether the altitude of the station impacts all of my analysis.
