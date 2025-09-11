@@ -105,4 +105,12 @@ Some pattern clearly emerge : some stations are filling up during the daytime (B
 To sort the date of each district, I used the k-means clustering algorithm to sort each time series of each district into one (out of k) cluster. I normalize my data using ``TimeSeriesScalerMeanVariance`` to ensure that each series has a mean of 0 and a variance of 1. This step is very important because it allows us to eliminate many biases, such as the absolute number of bikes in each district or the proportion of residents using the network. The times series sorted in each cluster (black on my figure) will be "close" from the mean value of the cluster (colored in my figure). After this unsupervized training, I have checked that k=3 offers a good physical interpretation and is backed up by criterions to choose such as Silhouette score and Elbow method.
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/TimeEVOcluster.png)
 <p align="center"><em>Time evolution of Vélib availability in 3 cluster identified by unsupervized learning</em></p>
+
 As announced, the machine managed to identify three main type, one cluster which fills during the night that we will dub "residential" and two which fill during the day that we will dub "business" (as it shuts down its activity during the week end) and another "tourism" as it is active every day. As studied before, indeed Belleville and Père Lachaise belong to residential cluster. Art-et-Métier and Champs-Elysée belongs to buisiness, while Bercy to tourism. Of course, the difference between tourism and business is more subtle than with residential. To sum up my findings, I propose you a map of Paris with each district classified with its Vélib activity.
+
+![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/ALLcluster.png)
+<p align="center"><em>Interpretation of each cluster identified with Vélib datag</em></p>
+So do you agree with this unsupervized training? In my case, my home is indeed in a "residential" era 🥳.
+
+## Predicting the future of Vélib
+Given the regularity of the pattern observed, an obvious next question, is whether we can predict the future behavior of Vélib traffic. We will see that it is possible and the preparatory work we did before (visualizing the data, classifying districts) will find useful.
