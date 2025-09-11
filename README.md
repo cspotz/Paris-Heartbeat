@@ -101,22 +101,28 @@ The previous maps may look a bit cluttered and adopting a coarser point of view 
 <p align="center"><em>Time evolution of Vélib availability in representative parisian districts</em></p>
 Clear patterns emerge from this aggregated view: some stations fill up during the daytime (Bercy, Champs-Élysées), while some others are filling during the night (Belleville, Père-Lachaise). The heavy rainfall already mentionned in the afternoon of 10th september subtly altered these patterns. Bercy did not empty as much as usual, which consequently resulted in Père-Lachaise becoming emptier compared to sunnier days. Next, we will explore how to define clusters for all districts in Paris based on their usage patterns. If you live in Paris, you can discover which type of district you reside in according to the Vélib data!
 
-## What Vélib tells us about districts: Residential, Business, Tourism?
-To sort the date of each district, I used the k-means clustering algorithm to sort each time series of each district into one (out of k) cluster. I normalize my data using ``TimeSeriesScalerMeanVariance`` to ensure that each series has a mean of 0 and a variance of 1. This step is very important because it allows us to eliminate many biases, such as the absolute number of bikes in each district or the proportion of residents using the network. The times series sorted in each cluster (black on my figure) will be "close" from the mean value of the cluster (colored in my figure). After this unsupervized training, I have checked that k=3 offers a good physical interpretation and is backed up by criterions to choose such as Silhouette score and Elbow method.
+## What Vélib tells us about districts: Residential, Business, or Tourism?
+To categorize the temporal patterns of each district, I applied the k-means clustering algorithm to group each district's time series into one of k clusters. The data was first normalized using ``TimeSeriesScalerMeanVariance`` to standardize each series to a mean of 0 and a variance of 1. This crucial step eliminates biases related to absolute scale, such as the total number of bikes in a district or its overall usage rate, allowing the algorithm to focus on the shape of the usage patterns rather than their magnitude. The times series sorted in each cluster (black on my figure) will be "close" from the mean value of the cluster (colored in my figure).
+The individual time series assigned to each cluster (shown in black) are "close" to their cluster's centroid (shown in color). After unsupervised training, I determined that k=3 provides the most physically interpretable results, a choice supported by quantitative criteria like the Silhouette score and the Elbow method.
 ![Time evolution of Vélib availability in 3 cluster identified by unsupervized learning](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/TimeEVOcluster.png)
 <p align="center"><em>Time evolution of Vélib availability in 3 cluster identified by unsupervized learning</em></p>
 
-As announced, the machine managed to identify three main type, one cluster which fills during the night that we will dub "residential" and two which fill during the day that we will dub "business" (as it shuts down its activity during the week end) and another "tourism" as it is active every day. As studied before, indeed Belleville and Père Lachaise belong to residential cluster. Art-et-Métier and Champs-Elysée belongs to buisiness, while Bercy to tourism. Of course, the difference between tourism and business is more subtle than with residential. To sum up my findings, I propose you a map of Paris with each district classified with its Vélib activity.
+As announced, the machine successfully identified three main types:
+* **Residential**: A cluster that fills during the night.
+* **Business**: A cluster that fills during the day but shows reduced activity on weekends.
+* **Tourism**: A cluster that is consistently active every day of the week.
+This classification aligns with our earlier observations: Belleville and Père-Lachaise belong to the residential cluster, while Arts-et-Métiers and Champs-Elysées are business-oriented. Bercy, with its cinema complex and event spaces, was classified as tourism. The distinction between business and tourism is indeed more nuanced than the clear day/night pattern of residential areas.
 
+To summarize my findings, I created a map of Paris with each district classified according to its Vélib activity pattern.
 ![Map of clusters in Paris](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/ALLcluster.png)
-<p align="center"><em>Interpretation of each cluster identified with Vélib datag</em></p>
-So do you agree with this unsupervized training? In my case, my home is indeed in a "residential" era 🥳.
+<p align="center"><em>Spatial distribution of district clusters identified from Vélib data</em></p>
+So do you agree with this unsupervized classification? In my case, my home is indeed in a "residential" era 🥳.
 
 ## Predicting Vélib availability: Can we predict how many bikes will be available at a given station at a given time?
-After monitoring the heartbeats of Paris through Vélib stations and classifying districts into “Residential”, “Business”, and “Tourism”, a natural question is whether we can predict the future behavior of Vélib traffic. To titiller Betteridge, the answer is _yes_, we can… with a little help from machine learning, weather, and time. The Vélib traffic depends on several parameters, for that simple project, I selected some :
-1. **Temporal information**: Bike usage is extremely time-dependent. Commuters swarm the streets during morning and evening peaks, while weekends follow a more relaxed rhythm. I extracted the hour of the day and the day of the week as features for the model.
-2. **Spatial information**: Each station belongs to a district. I encoded these districts numerically for the model and also added the cluster type (“Residential”, “Business”, “Tourism”) we identified earlier. Now the model knows whether it’s dealing with a sleepy residential area or a tourist hotspot buzzing with bikes.
-3. **External information**: As we saw before, a rainy day can ruin your morning commute and empty a lot of stations… or fill them with stranded bikes. I fetched hourly weather ☀️🌧️💨 for Paris (temperature, precipitation, wind) with ``meteostat``:
+After monitoring the heartbeats of Paris through Vélib stations and classifying districts into “Residential”, “Business”, and “Tourism”, a natural question is whether we can predict the future behavior of Vélib traffic. tweak Betteridge's law, the answer is a tentative _yes_—with a little help from machine learning, weather data, and time. Vélib traffic depends on several parameters. For this project, I selected the following key features:
+1. **Temporal information**: Bike usage is extremely time-dependent. Commuters swarm the streets during morning and evening peaks, while weekends follow a more relaxed rhythm. I extracted the hour of the day and the day of the week as core  temporal features for the model.
+2. **Spatial information**: Each station belongs to a specific district. I encoded these districts numerically and, crucially, incorporated the cluster type (“Residential”, “Business”, “Tourism”) we identified earlier. This allows the model to distinguish between a quiet residential area and a bustling tourist hub.
+3. **External information**:As we saw previously, weather significantly impacts bike usage. A rainy day can disrupt commutes, emptying some stations while filling others with stranded bikes. I fetched hourly weather data ☀️🌧️💨 for Paris (temperature, precipitation, wind speed) using the ``meteostat`` library:
 ```python
 location = Point(48.8566, 2.3522) #Paris, note there is only one meteo station in Paris (Montsouris)
 start = occupation_data['hour_floor'].min()
@@ -126,7 +132,7 @@ weather = Hourly(location, start, end).fetch()[['temp','prcp','wspd']]
 and merged it with our Vélib data by the hour. Now, each observation knows what the sky looked like when the bikes were counted. 
 
 ### Training the machine 🤖 
-I trained the machine using the popular choice ``XGBoost`` in these situation: a gradient boosting algorithm that handles complex interactions very well. The model learns patterns across the different inputs simultaneously. I wanted to check the impact of the district and of the weather so I performed three runs with the following input parameters: 
+I used ``XGBoost``, a powerful gradient boosting algorithm well-suited for capturing complex, non-linear interactions between features. The model learns to identify patterns across all input variables simultaneously. I wanted to check the impact of the district and of the weather so I performed three runs with the following input parameters: 
 
 ### Testing the crystal ball 🔮
 
@@ -150,12 +156,12 @@ I then measured the accuracy of the prediction using RMSE (the typical error in 
 | 2   | District code + hour + dayofweek + weather        |   49.2   | 0.82 | 
 | 3   | District code + type + hour + dayofweek + weather | <span style="background-color:#d4f7d4">36.4</span>     | <span style="background-color:#d4f7d4">0.90</span> |
 
-Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) 10 years ago seemed to be 98% accurancy for the next 45 minutes using more than 80 features, so of course R²=0.9 is more than perfectible, but I was already happy to see that adding the type of district helped a lot, while temperature doesn't seems to have much effect, it makes sense as except from the heavy rainfull of 10th september, the weather was pretty uniform during the time I fetch the Vélib data. Of course, with more data, this will help. To get a more concrete sense of with feature matter, I plotted a diagram of feature importance along with the prediction of the model vs the actual data :
+Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) a decade ago seemed to be 98% accurancy for the next 45 minutes using more than 80 features, so of course R²=0.9 is certainly perfectible, but I was already happy to see that adding the type of district helped a lot, while temperature doesn't seem to have much effect, it makes sense as except for the heavy rainfall of 10th september, the weather was pretty uniform during the time I fetched the Vélib data. Of course, with more data, this will help. To get a more concrete sense of which features matter, I plotted a diagram of feature importance along with the prediction of the model vs the actual data :
 ![Performance of the model](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/resFIT.png)
 <p align="center"><em>Contribution of each feature to the final result</em></p>
-In the notebook, I also add aditional plot including a heatmap to see if the input features were correlated.
+In the notebook, I added an additional plot including a heatmap to see if the input features were correlated.
 
-All in all, I have a fun time playing around those bikes data, if I were to improve my model, I would add more features, such as altitude of the stations, holidays, strikes...I would also move to a larger computer than my laptop, and of course use a larger data set. My background of physicist makes me note than as usual in those data driven project, little car is given to the error bars (at that is what I chose to do here), and I guess adding them (for instance in the classification of the district would refine the game).
+All in all, I have had a fun time playing around this bikes data, if I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
 
 
 
