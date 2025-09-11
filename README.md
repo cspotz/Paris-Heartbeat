@@ -96,7 +96,7 @@ Using ``Isolation Forest``, an algorithm to detect "anomalies" in a given datase
 I analyzed the full datasets with all the timeframes, so the results is a good tip for Vélib users 😉, though it remains to be checked whether for instance the altitude of the station impacts my claim of good tip 🥵.
 
 ## Beyond individual stations: sorting data by districts
-The previous maps may look a bit cluttered and adopting a coarser point of view of the data will prove insightful. The official list of districts can be found [here](https://opendata.paris.fr/explore/dataset/quartier_paris/information/), and I also added it to the GitHub repo.
+The previous maps may look a bit cluttered and adopting a coarser point of view of the data will prove insightful. The official list of Paris' districts can be found [here](https://opendata.paris.fr/explore/dataset/quartier_paris/information/), and I also added it to the GitHub repo.
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/evoBYdistrict.png)
 <p align="center"><em>Time evolution of Vélib availability in some representative districts of Paris</em></p>
 Some pattern clearly emerge : some stations are filling up during the daytime (Bercy, Champs-Elysée), while some others are filling during the night (Belleville, Père Lachaise). The heavy rainfall already mentionned in the afternoon of 10th september impact sighly this picture : Bercy did not empty as much as usual resulting that Père-Lachaise became emptier as previous (somewhat) sunnier days. We will not see how it is possible to define clusters for each district of Paris, and if you live in Paris, you can check in which type of district you live according to my velib data !
