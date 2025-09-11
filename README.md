@@ -103,3 +103,5 @@ Some pattern clearly emerge : some stations are filling up during the daytime (B
 
 ## What Vélib tells us about districts: Redidential, Buisiness, Tourism?
 To sort the date of each district, I used the k-means clustering algorithm to sort each time series of each district into one (out of k) cluster. I normalize my data using ``TimeSeriesScalerMeanVariance`` to ensure that each series has a mean of 0 and a variance of 1. This step is very important because it allows us to eliminate many biases, such as the absolute number of bikes in each district or the proportion of residents using the network. The times series sorted in each cluster (black on my figure) will be "close" from the mean value of the cluster (colored in my figure). After this unsupervized training, I have checked that k=3 offers a good physical interpretation and is backed up by criterions to choose such as Silhouette score and Elbow method.
+![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/TimeEVOcluster.png)
+<p align="center"><em>Time evolution of Vélib availability in 3 cluster identified by unsupervized learning</em></p>
