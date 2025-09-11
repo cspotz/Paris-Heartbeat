@@ -82,18 +82,24 @@ I chose Saint-Sulpice station (out of 1,469) as an example to visualize how bike
 
 - Clear patterns emerge—the advertised _heart beats_ of Paris is visible. 
 - Occasionally, the station is completely empty of bikes (bad luck for the next user! 🤯). Let's see if we can predict that!
-- On September 10th, the amplitude of the “heartbeat” decreased significantly due to heavy rainfall in Paris.
+- On September 10th, the amplitude of the “heartbeat” decreased significantly as it was raining cats and dogs that afternoon in Paris.
 ## Visualizing Station Occupancy and Anomaly detection
-Using GeoPandas and OpenStreetMap, it is possible to visualize, the availability of the bikes in the stations. 
+Using ``GeoPandas`` and ``OpenStreetMap``, it is possible to visualize, the availability of the bikes in the stations. 
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/Velib_availability.png)
 <p align="center"><em>Geospatial Analysis of Station Availability</em></p>
 Green means a lot of bikes and red few bikes, while a cross indicate no bikes at all 🤯
 This visual inspection is worth it before delving into more involved data analysis. 
 
-Using Isolation Forest, an algorithm to detect "anomalies" in a given dataset, I could identify 147 (out of 1469) atypical stations including 16 station always full (over-utilization) and 5 stations always empty (under-utilization).
+Using ``Isolation Forest``, an algorithm to detect "anomalies" in a given dataset, I could identify 147 (out of 1469) atypical stations including 16 station always full (over-utilization) and 5 stations always empty (under-utilization).
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/Anomaly.png)
 <p align="center"><em>Flies in the ointment? An analysis of anomalous pattern in the Vélib data</em></p>
 I analyzed the full datasets with all the timeframes, so the results is a good tip for Vélib users 😉, though it remains to be checked whether for instance the altitude of the station impacts my claim of good tip 🥵.
 
 ## Beyond individual stations: sorting data by districts
 The previous maps may look a bit cluttered and adopting a coarser point of view of the data will prove insightful. The official list of districts can be found [here](https://opendata.paris.fr/explore/dataset/quartier_paris/information/), and I also added it to the GitHub repo.
+![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/evoBYdistrict.png)
+<p align="center"><em>Time evolution of Vélib availability in some representative districts of Paris</em></p>
+Some pattern clearly emerge : some stations are filling up during the daytime (Bercy, Champs-Elysée), while some others are filling during the night (Belleville, Père Lachaise). The heavy rainfall already mentionned in the afternoon of 10th september impact sighly this picture : Bercy did not empty as much as usual resulting that Père-Lachaise became emptier as previous (somewhat) sunnier days. We will not see how it is possible to define clusters for each district of Paris, and if you live in Paris, you can check in which type of district you live according to my velib data !
+
+## What Vélib tells us about districts: Redidential, Buisiness, Tourism?
+To sort the date of each district, I used the k-means clustering algorithm to sort each time series of each district into one (out of k) cluster. I normalize my data using ``TimeSeriesScalerMeanVariance`` to ensure that each series has a mean of 0 and a variance of 1. This step is very important because it allows us to eliminate many biases, such as the absolute number of bikes in each district or the proportion of residents using the network. The times series sorted in each cluster (black on my figure) will be "close" from the mean value of the cluster (colored in my figure). After this unsupervized training, I have checked that k=3 offers a good physical interpretation and is backed up by criterions to choose such as Silhouette score and Elbow method.
