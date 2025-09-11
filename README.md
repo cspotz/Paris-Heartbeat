@@ -92,5 +92,5 @@ This visual inspection is worth it before delving into more involved data analys
 
 Using Isolation Forest, an algorithm to detect "anomalies" in a given dataset, I could identify 147 (out of 1469) atypical stations including 16 station always full (over-utilization) and 5 stations always empty (under-utilization).
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/Anomaly.png)
-<p align="center"><em>Flies in the ointment? An analysis of anomalous pattern in the Vélib data/em></p>
-I analyzed the full datasets with all the timeframes, so the results is a good tip for Vélib users 😉, though it remains to be checked whether the altitude of the station impacts all of my analysis.
+<p align="center"><em>Flies in the ointment? An analysis of anomalous pattern in the Vélib data</em></p>
+I analyzed the full datasets with all the timeframes, so the results is a good tip for Vélib users 😉, though it remains to be checked whether for instance the altitude of the station impacts my claim of good tip 🥵.
