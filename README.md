@@ -127,10 +127,10 @@ weather = Hourly(location, start, end).fetch()[['temp','prcp','wspd']]
 ```
 and merged it with our Vélib data by the hour. Now, each observation knows what the sky looked like when the bikes were counted. 
 
-#Training the machine 🤖 
+# Training the machine 🤖 
 I trained the machine using the popular choice ``XGBoost`` in these situation: a gradient boosting algorithm that handles complex interactions very well. The model learns patterns across the different inputs simultaneously. I wanted to check the impact of the district and of the weather so I performed three runs with the following input parameters: 
 
-#Testing the crystal ball 🔮
+# Testing the crystal ball 🔮
 
 After training, I let the model make predictions on unseen data, here is a sample of the predictions:
 
