@@ -127,10 +127,10 @@ weather = Hourly(location, start, end).fetch()[['temp','prcp','wspd']]
 ```
 and merged it with our Vélib data by the hour. Now, each observation knows what the sky looked like when the bikes were counted. 
 
-# Training the machine 🤖 
+### Training the machine 🤖 
 I trained the machine using the popular choice ``XGBoost`` in these situation: a gradient boosting algorithm that handles complex interactions very well. The model learns patterns across the different inputs simultaneously. I wanted to check the impact of the district and of the weather so I performed three runs with the following input parameters: 
 
-# Testing the crystal ball 🔮
+### Testing the crystal ball 🔮
 
 After training, I let the model make predictions on unseen data, here is a sample of the predictions:
 
@@ -152,7 +152,7 @@ I then measured the accuracy of the prediction using RMSE (the typical error in 
 | 2   | District code + hour + dayofweek + weather        |   49.2   | 0.82 | 
 | 3   | District code + type + hour + dayofweek + weather | <span style="background-color:#d4f7d4">36.4</span>     | <span style="background-color:#d4f7d4">0.90</span> |
 
-Of cours R²=0.9 is more than perfectible, but I was already happy to see that adding the type of district helped a lot, while temperature doesn't seems to have much effect, it makes sense as except from the heavy rainfull of 10th september, the weather was pretty uniform during the time I fetch the Vélib data. Of course, with more data, this will help. To get a more concrete sense of with feature matter, I plotted a diagram of feature importance :
+Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) 10 years ago seemed to be 98% accurancy for the next 45 minutes using more than 80 features, so of course R²=0.9 is more than perfectible, but I was already happy to see that adding the type of district helped a lot, while temperature doesn't seems to have much effect, it makes sense as except from the heavy rainfull of 10th september, the weather was pretty uniform during the time I fetch the Vélib data. Of course, with more data, this will help. To get a more concrete sense of with feature matter, I plotted a diagram of feature importance :
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/FEAimportance.png)
 <p align="center"><em>Contribution of each feature to the final result</em></p>
 In the notebook, I also add aditional plot including a heatmap to see if the input features were correlated. All in all, I have a fun time playing around those bikes data, if I were to improve my model, I would add more features, such as altitude of the stations, holidays, strikes...I would also move to a larger computer than my laptop, and of course use a larger data set. My background of physicist makes me note than as usual in those data driven project, little car is given to the error bars (at that is what I chose to do here), and I guess adding them (for instance in the classification of the district would refine the game).
