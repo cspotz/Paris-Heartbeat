@@ -4,9 +4,9 @@ To put the figures, 0.5 millions rides of Vélib occur per day, to be compared t
 
 While Vélib data is only a biased tracer of Paris's total motion (it is restricted to a non-representative subset of users), it still provides very insightful clues about urban dynamics. This journey through Parisian data is the perfect excuse to learn and practice key technical skills, including:
 *    **Pandas** for data management and manipulation.
-*    **Requests** and **APScheduler** for querying various APIs to collect live data and  for automating regular tasks.
 *    **GeoPandas** for manipulating geographical data and producing maps.
 *    **Matplotlib** and **Seaborn** for creating visualizations and graphs.
+*  * **Requests** and **APScheduler** for querying various APIs to collect live data and  for automating regular tasks.
 *    **Tslearn**, **sklearn** and **xgboost** for clustering and machine learning.
 
 ## Data collection
