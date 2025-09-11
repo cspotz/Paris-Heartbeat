@@ -6,7 +6,7 @@ While Vélib data is only a biased tracer of Paris's total motion (it is restric
 *    **Pandas** for data management and manipulation.
 *    **GeoPandas** for manipulating geographical data and producing maps.
 *    **Matplotlib** and **Seaborn** for creating visualizations and graphs.
-*  * **Requests** and **APScheduler** for querying various APIs to collect live data and  for automating regular tasks.
+*    **Requests** and **APScheduler** for querying various APIs to collect live data and  for automating regular tasks.
 *    **Tslearn**, **sklearn** and **xgboost** for clustering and machine learning.
 
 ## Data collection
