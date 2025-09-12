@@ -161,7 +161,7 @@ Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bik
 <p align="center"><em>Contribution of each feature to the final result</em></p>
 In the notebook, I added an additional plot including a heatmap to see if the input features were correlated.
 
-All in all, I have had a fun time playing around this bikes data, if I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
+All in all, I have had a fun time playing around this bikes data. [That](https://pierreauclair.org/blog/velibs.html) blog post was a good source of inspiration for the begining of this project. If I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
 
 
 
