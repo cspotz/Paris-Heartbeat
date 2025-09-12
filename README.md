@@ -62,7 +62,7 @@ def scheduled_job():
 # Start the automated data collection
 sched.start()
 ```
-In my case, I use the decorator to fetch data every 10 minutes from 7th september to 22th september 2025.
+In my case, I use the decorator ``@sched.scheduled_job("interval", minutes=10)`` to fetch data every 10 minutes from 7th september to 22th september 2025.
 ## Data inspection
 Let's first look at the raw data ``df_status`` that was downloaded in step 1 above.
 
