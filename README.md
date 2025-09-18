@@ -159,11 +159,11 @@ After training, the model makes predictions on unseen data—time periods that c
 
 | Run | Features                                          | RMSE | R²                                             |
 | --- | ------------------------------------------------- | ---- | ---------------------------------------------- |
-| 1   | District code + hour + dayofweek                  |   59.6   |    0.8273                                          |
+| 1   | District code + hour + dayofweek                  |   59.6   |    0.73                                          |
 | 2   | District code + hour + dayofweek + weather        |   59.7   | 0.73 | 
 | 3   | District code + type + hour + dayofweek + weather | <span style="background-color:#d4f7d4">55.7</span>     | <span style="background-color:#d4f7d4">0.76</span> |
 
-This first try showed me that adding the type of district helped a lot, while temperature doesn't seem to have much effect. It makes sense as except for the heavy rainfall of 10th september, the weather was pretty uniform during the time I fetched the Vélib data. 
+This first try shows that adding the type of district helped a lot, while temperature doesn't seem to have much effect. It makes sense as except for the heavy rainfall of 10th september, the weather was pretty uniform during the time I fetched the Vélib data. 
 
 ### Tuning the hyperparameters with optuna
 The hyperparameters left fixed in the previous section are now varied using ``optuna`` which allows for an optimal search of the ideal parameters. After 30 trials, it selected :  ``n_estimators=189,  learning_rate=0.11,  max_depth=5,
