@@ -132,15 +132,45 @@ weather = Hourly(location, start, end).fetch()[['temp','prcp','wspd']]
 and merged it with our Vélib data by the hour. Now, each observation knows what the sky looked like when the bikes were counted. 
 
 ### Training the machine 🤖 
-I used ``XGBoost`` a gradient boosting algorithm that builds an ensemble of decision trees sequentially, optimizing for the residual errors of the previous trees. This approach is particularly well-suited for capturing complex, non-linear interactions between features. The model learns to identify patterns across all input variables simultaneously. 
+I used ``XGBoost`` a gradient boosting algorithm that builds an ensemble of decision trees sequentially, optimizing for the residual errors of the previous trees. This approach is particularly well-suited for capturing complex, non-linear interactions between features. The model learns to identify patterns across all input variables simultaneously. Its core call is:
+```python
+# Train XGBoost
+model = xgb.XGBRegressor(
+  n_estimators=300,
+  learning_rate=0.05,
+  max_depth=3,
+  subsample=0.8,
+  colsample_bytree=0.8,
+  random_state=42,
+  n_jobs=-1,
+  tree_method="hist"
+        )
+```
+where the hyperparameters of the model (XXXdescribe em here) are chosen somewhat arbitrarely at this stage. In a subsequent run, I will optimize them using ``optuna``.
 
-I wanted to check the impact of the district and of the weather so I performed three runs with the following features : {District code + hour + dayofweek} , {District code + hour + dayofweek + weather } and {District code + type + hour + dayofweek + weather}.
+I wanted to check the impact of the district and of the weather so I performed three runs with the following features : {District code + hour + dayofweek} , {District code + hour + dayofweek + weather } and {District code  + hour + dayofweek + weather + type}.
 
 As my data are time-ordered, I employed a 5-fold ``TimeSeriesSplit``, training the model on progressively larger portions of the data (starting from ~1/6 of the dataset and growing to ~5/6), always testing on the subsequent chronological segment. This ensures the model is evaluated on future data relative to its training set, avoiding any look-ahead bias. 
 
 ### Testing the crystal ball 🔮
 
-After training, the model makes predictions on unseen data—time periods that come immediately after each training fold—ensuring it is always tested on future data it hasn’t encountered. Here is a sample of the predictions:
+After training, the model makes predictions on unseen data—time periods that come immediately after each training fold—ensuring it is always tested on future data it hasn’t encountered. I then measured the accuracy of the prediction using the mean of the RMSE (the typical error in number of bikes) and R² (how well the model explains the variability) over the 5 time folding:
+
+
+| Run | Features                                          | RMSE | R²                                             |
+| --- | ------------------------------------------------- | ---- | ---------------------------------------------- |
+| 1   | District code + hour + dayofweek                  |   59.6   |    0.8273                                          |
+| 2   | District code + hour + dayofweek + weather        |   59.7   | 0.73 | 
+| 3   | District code + type + hour + dayofweek + weather | <span style="background-color:#d4f7d4">55.7</span>     | <span style="background-color:#d4f7d4">0.76</span> |
+
+This first try showed me that adding the type of district helped a lot, while temperature doesn't seem to have much effect. It makes sense as except for the heavy rainfall of 10th september, the weather was pretty uniform during the time I fetched the Vélib data. 
+
+### Tuning the hyperparameters with optuna
+The hyperparameters left fixed in the previous section are now varied using ``optuna`` which allows for an optimal search of the ideal parameters. After 30 trials, it selected :  ``n_estimators=189,  learning_rate=0.11,  max_depth=5,
+  subsample=0.97,  colsample_bytree=0.98`` as the best model with RMSE=50.1 and R²=0.91.
+
+
+Here is a sample of the predictions:
 
 | district       | type        | hour | dayofweek | temperature | precip | wind_speed | y_true | y_pred      |
 |----------------|------------|------|-----------|------------|--------|------------|--------|------------|
@@ -150,20 +180,13 @@ After training, the model makes predictions on unseen data—time periods that c
 | Champs-Elysées | Business    | 12   | 6         | 25.7       | 0.0    | 8.3        | 156    | 117.166687 |
 | Père-Lachaise  | Residential | 0    | 6         | 16.8       | 0.0    | 9.7        | 125    | 129.630432 |
 
+To get a more concrete sense of which features matter, I plotted a diagram of feature importance along with the prediction of the model vs the actual data :
 
-I then measured the accuracy of the prediction using RMSE (the typical error in number of bikes), R² (how well the model explains the variability):
-
-
-| Run | Features                                          | RMSE | R²                                             |
-| --- | ------------------------------------------------- | ---- | ---------------------------------------------- |
-| 1   | District code + hour + dayofweek                  |   49.6   |    0.82                                            |
-| 2   | District code + hour + dayofweek + weather        |   49.2   | 0.82 | 
-| 3   | District code + type + hour + dayofweek + weather | <span style="background-color:#d4f7d4">36.4</span>     | <span style="background-color:#d4f7d4">0.90</span> |
-
-Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) a decade ago seemed to be 98% accurancy for the next 45 minutes using more than 80 features, so of course R²=0.9 is certainly perfectible, but I was already happy to see that adding the type of district helped a lot, while temperature doesn't seem to have much effect, it makes sense as except for the heavy rainfall of 10th september, the weather was pretty uniform during the time I fetched the Vélib data. Of course, with more data, this will help. To get a more concrete sense of which features matter, I plotted a diagram of feature importance along with the prediction of the model vs the actual data :
 ![Performance of the model](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/resFIT.png)
 <p align="center"><em>Contribution of each feature to the final result</em></p>
-In the notebook, I added an additional plot including a heatmap to see if the input features were correlated.
+
+Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) a decade ago seemed to be 98% accurancy for the next 45 minutes using more than 80 features, so of course R²=0.9 is certainly perfectible. In the notebook, I added additional plots including time evolution of the residutes and a heatmap to see if the input features were correlated. 
+
 
 All in all, I have had a fun time playing around this bikes data. [That](https://pierreauclair.org/blog/velibs.html) blog post was a good source of inspiration for the begining of this project. If I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset. I also read lag features (like the number of bikes available in the previous hour or the same hour on previous days) and rolling statistics (moving averages or rolling standard deviations) o capture persistence in bike usage. Essentially, by feeding the model both “what just happened” and “what has been happening,” it becomes much better at anticipating Paris’ heartbeats 🚴‍♂️💓, whether on a sunny weekday or a rainy afternoon. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
 
