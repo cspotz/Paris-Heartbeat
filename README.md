@@ -3,11 +3,10 @@ In order to gear up my data science skills, I recently became interested in Vél
 To put the figures, 0.5 millions rides of Vélib occur per day, to be compared to 4 million daily rides on the metro and 1.1 million daily car trips within the 2.1 million inhabitants city.
 
 While Vélib data is only a biased tracer of Paris's total motion (it is restricted to a non-representative subset of users), it still provides very insightful clues about urban dynamics. This journey through Parisian data is the perfect excuse to learn and practice key technical skills, including:
-*    **Pandas** for data management and manipulation.
-*    **GeoPandas** for manipulating geographical data and producing maps.
+*    **Pandas** for data management and manipulation, **GeoPandas** for manipulating geographical data and producing maps.
 *    **Matplotlib** and **Seaborn** for creating visualizations and graphs.
 *    **Requests** and **APScheduler** for querying various APIs to collect live data and  for automating regular tasks.
-*    **Tslearn**, **sklearn** and **xgboost** for clustering and machine learning.
+*    **Tslearn**, **Sklearn**, **Xgboost**  and **Optuna** for clustering and machine learning
 
 ## Data collection
 Vélib data is available via a live API but offers no history. I built a pipeline to collect it every 10 minutes during 15 days.
@@ -90,10 +89,10 @@ Using ``GeoPandas`` and ``OpenStreetMap``,we can visualize bike availability acr
 Green indicates many available bikes, red indicates few bikes, and a cross (❌) marks stations with no bikes at all 🤯.
 This visual inspection is worth it before delving into more involved data analysis. 
 
-Using ``Isolation Forest``, an algorithm designed to detect "anomalies" in a given dataset, I could identify 147 (out of 1469) atypical stations including 16 station always full (over-utilization) and 5 stations always empty (under-utilization).
+Using ``Isolation Forest``, an algorithm designed to detect "anomalies" in a given dataset, I could identify 148 (out of 1469) atypical stations including 19 station always full (over-utilization) and 10 stations always empty (under-utilization).
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/Anomaly.png)
 <p align="center"><em>Flies in the ointment? An analysis of anomalous pattern in the Vélib data</em></p>
-I analyzed the full datasets with all the timeframes, so the findings are a good tip for Vélib users 😉, though it remains to be checked whether for instance the altitude of the station impacts my claim of good tip 🥵.
+I analyzed the full datasets with all the timeframes, so the findings are a good tip for Vélib users 😉, though it remains to be checked whether, for instance, the altitude of the station impacts my claim of good tip 🥵.
 
 ## Beyond individual stations: sorting data by districts
 The previous maps may look a bit cluttered and adopting a coarser point of view of the data will prove insightful. The official list of Paris districts can be found [here](https://opendata.paris.fr/explore/dataset/quartier_paris/information/), and is also available in this repository for reproducibility.
@@ -146,7 +145,7 @@ model = xgb.XGBRegressor(
   tree_method="hist"
         )
 ```
-where the hyperparameters of the model (``n_estimators``: Number of decision trees. More trees = higher capacity, but slower and risk of overfit ; ``max_depth``: Maximum depth of trees. Controls model complexity. ; ``learning_rate``: Step size per tree. Balances speed vs precision. ; ``subsample``: Fraction of data per tree. Adds randomness, reduces overfit. ; ``colsample_bytree``: Fraction of features per tree. Improves robustness) are chosen somewhat arbitrarely at this stage. In a subsequent run, I will optimize them using ``optuna``.
+where the hyperparameters of the model (``n_estimators``: number of decision trees, more trees increase capacity but also slow training and risk overfitting ; ``max_depth``: maximum depth of trees, controls model complexity ; ``learning_rate``: step size per tree, balances speed vs precision ; ``subsample``: fraction of data per tree, adds randomness, reduces overfit ; ``colsample_bytree``: fraction of features per tree, improves robustness) were chosen somewhat arbitrarily. In a subsequent run, I optimized them using ``optuna``.
 
 I wanted to check the impact of the district and of the weather so I performed three runs with the following features : {District code + hour + dayofweek} , {District code + hour + dayofweek + weather } and {District code  + hour + dayofweek + weather + type}.
 
@@ -161,7 +160,7 @@ After training, the model makes predictions on unseen data—time periods that c
 | --- | ------------------------------------------------- | ---- | ---------------------------------------------- |
 | 1   | District code + hour + dayofweek                  |   59.6   |    0.73                                          |
 | 2   | District code + hour + dayofweek + weather        |   59.7   | 0.73 | 
-| 3   | District code + type + hour + dayofweek + weather | <span style="background-color:#d4f7d4">55.7</span>     | <span style="background-color:#d4f7d4">0.76</span> |
+| 3   | District code + hour + dayofweek + weather + type | <span style="background-color:#d4f7d4">55.7</span>     | <span style="background-color:#d4f7d4">0.76</span> |
 
 This first try shows that adding the type of district helped a lot, while temperature doesn't seem to have much effect. It makes sense as except for the heavy rainfall of 10th september, the weather was pretty uniform during the time I fetched the Vélib data. 
 
@@ -188,7 +187,7 @@ To get a more concrete sense of which features matter, I plotted a diagram of fe
 Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) a decade ago seemed to be 98% accurancy for the next 45 minutes using more than 80 features, so of course R²=0.9 is certainly perfectible. In the notebook, I added additional plots including time evolution of the residutes and a heatmap to see if the input features were correlated. 
 
 
-All in all, I have had a fun time playing around this bikes data. [That](https://pierreauclair.org/blog/velibs.html) blog post was a good source of inspiration for the begining of this project. If I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset. I also read lag features (like the number of bikes available in the previous hour or the same hour on previous days) and rolling statistics (moving averages or rolling standard deviations) o capture persistence in bike usage. Essentially, by feeding the model both “what just happened” and “what has been happening,” it becomes much better at anticipating Paris’ heartbeats 🚴‍♂️💓, whether on a sunny weekday or a rainy afternoon. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
+All in all, I have had a fun time playing around this bikes data. [That](https://pierreauclair.org/blog/velibs.html) blog post was a good source of inspiration for the begining of this project. If I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset (for instance [that one](https://github.com/lovasoa/historique-velib-opendata)). I also [read](https://scikit-learn.org/stable/auto_examples/applications/plot_time_series_lagged_features.html) lag features (like the number of bikes available in the previous hour or the same hour on previous days) and rolling statistics (moving averages or rolling standard deviations) o capture persistence in bike usage. Essentially, by feeding the model both “what just happened” and “what has been happening,” it becomes much better at anticipating Paris’ heartbeats 🚴‍♂️💓, whether on a sunny weekday or a rainy afternoon. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
 
 
 
