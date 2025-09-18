@@ -140,7 +140,7 @@ As my data are time-ordered, I employed a 5-fold ``TimeSeriesSplit``, training t
 
 ### Testing the crystal ball 🔮
 
-After training, I let the model make predictions on unseen data, unseen data: time intervals not included in the training folds of the 5-fold ``TimeSeriesSplit``. For each fold, this corresponds to the next chronological segment after the training portion, so the model is always tested on future data relative to what it has seen. Here is a sample of the predictions:
+After training, the model makes predictions on unseen data—time periods that come immediately after each training fold—ensuring it is always tested on future data it hasn’t encountered. Here is a sample of the predictions:
 
 | district       | type        | hour | dayofweek | temperature | precip | wind_speed | y_true | y_pred      |
 |----------------|------------|------|-----------|------------|--------|------------|--------|------------|
