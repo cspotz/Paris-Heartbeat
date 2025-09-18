@@ -132,11 +132,15 @@ weather = Hourly(location, start, end).fetch()[['temp','prcp','wspd']]
 and merged it with our Vélib data by the hour. Now, each observation knows what the sky looked like when the bikes were counted. 
 
 ### Training the machine 🤖 
-I used ``XGBoost``, a powerful gradient boosting algorithm well-suited for capturing complex, non-linear interactions between features. The model learns to identify patterns across all input variables simultaneously. I wanted to check the impact of the district and of the weather so I performed three runs with the following input parameters: 
+I used ``XGBoost`` a gradient boosting algorithm that builds an ensemble of decision trees sequentially, optimizing for the residual errors of the previous trees. This approach is particularly well-suited for capturing complex, non-linear interactions between features. The model learns to identify patterns across all input variables simultaneously. 
+
+I wanted to check the impact of the district and of the weather so I performed three runs with the following features : {District code + hour + dayofweek} , {District code + hour + dayofweek + weather } and {District code + type + hour + dayofweek + weather}.
+
+As my data are time-ordered, I employed a 5-fold ``TimeSeriesSplit``, training the model on progressively larger portions of the data (starting from ~1/6 of the dataset and growing to ~5/6), always testing on the subsequent chronological segment. This ensures the model is evaluated on future data relative to its training set, avoiding any look-ahead bias. 
 
 ### Testing the crystal ball 🔮
 
-After training, I let the model make predictions on unseen data, here is a sample of the predictions:
+After training, I let the model make predictions on unseen data, unseen data: time intervals not included in the training folds of the 5-fold ``TimeSeriesSplit``. For each fold, this corresponds to the next chronological segment after the training portion, so the model is always tested on future data relative to what it has seen. Here is a sample of the predictions:
 
 | district       | type        | hour | dayofweek | temperature | precip | wind_speed | y_true | y_pred      |
 |----------------|------------|------|-----------|------------|--------|------------|--------|------------|
@@ -161,7 +165,7 @@ Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bik
 <p align="center"><em>Contribution of each feature to the final result</em></p>
 In the notebook, I added an additional plot including a heatmap to see if the input features were correlated.
 
-All in all, I have had a fun time playing around this bikes data. [That](https://pierreauclair.org/blog/velibs.html) blog post was a good source of inspiration for the begining of this project. If I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
+All in all, I have had a fun time playing around this bikes data. [That](https://pierreauclair.org/blog/velibs.html) blog post was a good source of inspiration for the begining of this project. If I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset. I also read lag features (like the number of bikes available in the previous hour or the same hour on previous days) and rolling statistics (moving averages or rolling standard deviations) o capture persistence in bike usage. Essentially, by feeding the model both “what just happened” and “what has been happening,” it becomes much better at anticipating Paris’ heartbeats 🚴‍♂️💓, whether on a sunny weekday or a rainy afternoon. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
 
 
 
