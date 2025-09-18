@@ -146,7 +146,7 @@ model = xgb.XGBRegressor(
   tree_method="hist"
         )
 ```
-where the hyperparameters of the model (XXXdescribe em here) are chosen somewhat arbitrarely at this stage. In a subsequent run, I will optimize them using ``optuna``.
+where the hyperparameters of the model (``n_estimators``: Number of decision trees. More trees = higher capacity, but slower and risk of overfit ; ``max_depth``: Maximum depth of trees. Controls model complexity. ; ``learning_rate``: Step size per tree. Balances speed vs precision. ; ``subsample``: Fraction of data per tree. Adds randomness, reduces overfit. ; ``colsample_bytree``: Fraction of features per tree. Improves robustness) are chosen somewhat arbitrarely at this stage. In a subsequent run, I will optimize them using ``optuna``.
 
 I wanted to check the impact of the district and of the weather so I performed three runs with the following features : {District code + hour + dayofweek} , {District code + hour + dayofweek + weather } and {District code  + hour + dayofweek + weather + type}.
 
