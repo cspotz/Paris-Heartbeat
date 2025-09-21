@@ -61,7 +61,7 @@ def scheduled_job():
 # Start the automated data collection
 sched.start()
 ```
-In my case, I use the decorator ``@sched.scheduled_job("interval", minutes=10)`` to fetch data every 10 minutes from 7th september to 14th september 2025.
+In my case, I use the decorator ``@sched.scheduled_job("interval", minutes=10)`` to fetch data every 10 minutes from 7th september to 22nd september 2025.
 ## Data inspection
 Let's first look at the raw data ``df_status`` that was downloaded in step 1 above.
 
@@ -83,13 +83,13 @@ I chose Saint-Sulpice station (out of 1,469) as an example to visualize how bike
 - Occasionally, the station is completely empty of bikes (bad luck for the next user! 🤯). Let's see if we can predict that!
 - On September 10th, the amplitude of the “heartbeat” decreased significantly as it was raining cats and dogs that afternoon in Paris.
 ## Visualizing station occupancy and anomaly detection
-Using ``GeoPandas`` and ``OpenStreetMap``,we can visualize bike availability across stations.
+Using ``GeoPandas`` and ``OpenStreetMap``, we can visualize bike availability across stations.
 ![Vélib Station Availability Map](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/Velib_availability.png)
 <p align="center"><em>Geospatial Analysis of Station Availability</em></p>
 Green indicates many available bikes, red indicates few bikes, and a cross (❌) marks stations with no bikes at all 🤯.
 This visual inspection is worth it before delving into more involved data analysis. 
 
-Using ``Isolation Forest``, an algorithm designed to detect "anomalies" in a given dataset, I could identify 148 (out of 1469) atypical stations including 19 station always full (over-utilization) and 10 stations always empty (under-utilization).
+Using ``Isolation Forest``, an algorithm designed to detect "anomalies" in a given dataset, I could identify 150 (out of 1469) atypical stations including 32 station always full (over-utilization) and 22 stations always empty (under-utilization).
 ![Vélib Station Availability Chart](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/Anomaly.png)
 <p align="center"><em>Flies in the ointment? An analysis of anomalous pattern in the Vélib data</em></p>
 I analyzed the full datasets with all the timeframes, so the findings are a good tip for Vélib users 😉, though it remains to be checked whether, for instance, the altitude of the station impacts my claim of good tip 🥵.
@@ -110,15 +110,16 @@ As announced, the machine successfully identified three main types:
 * **Residential**: A cluster that fills during the night.
 * **Business**: A cluster that fills during the day but shows reduced activity on weekends.
 * **Tourism**: A cluster that is consistently active every day of the week.
-This classification aligns with our earlier observations: Belleville and Père-Lachaise belong to the residential cluster, while Arts-et-Métiers and Champs-Elysées are business-oriented. Bercy, with its cinema complex and event spaces, was classified as tourism. The distinction between business and tourism is indeed more nuanced than the clear day/night pattern of residential areas.
+
+This classification aligns with our earlier observations: Belleville and Père-Lachaise belong to the residential cluster, while Bercy and Champs-Elysées are business-oriented. Arts et Métiers, with its museums and historical landmarks, was classified as tourism. The distinction between business and tourism is indeed more nuanced than the clear day/night pattern of residential areas.
 
 To summarize my findings, I created a map of Paris with each district classified according to its Vélib activity pattern.
 ![Map of clusters in Paris](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/ALLcluster.png)
 <p align="center"><em>Spatial distribution of district clusters identified from Vélib data</em></p>
-So do you agree with this unsupervized classification? In my case, my home is indeed in a "residential" era 🥳.
+So, do you agree with this unsupervized classification? In my case, my home is indeed in a "residential" era 🥳.
 
 ## Predicting Vélib availability: Can we predict how many bikes will be available at a given station at a given time?
-After monitoring the heartbeats of Paris through Vélib stations and classifying districts into “Residential”, “Business”, and “Tourism”, a natural question is whether we can predict the future behavior of Vélib traffic. Against Betteridge's law, the answer is a tentative _yes_—with a little help from machine learning, weather data, and time. Vélib traffic depends on several parameters. For this project, I selected the following key features:
+After monitoring the heartbeats of Paris through Vélib stations and classifying districts into “Residential”, “Business”, and “Tourism”, a natural question is whether we can predict the future behavior of Vélib traffic. Against Betteridge's law, the answer is a tentative _yes_—with a little help from machine learning. Vélib traffic depends on several parameters, for this project, I selected the following key features:
 1. **Temporal information**: Bike usage is extremely time-dependent. Commuters swarm the streets during morning and evening peaks, while weekends follow a more relaxed rhythm. I extracted the hour of the day and the day of the week as core  temporal features for the model.
 2. **Spatial information**: Each station belongs to a specific district. I encoded these districts numerically and, crucially, incorporated the cluster type (“Residential”, “Business”, “Tourism”) we identified earlier. This allows the model to distinguish between a quiet residential area and a bustling tourist hub.
 3. **External information**:As we saw previously, weather significantly impacts bike usage. A rainy day can disrupt commutes, emptying some stations while filling others with stranded bikes. I fetched hourly weather data ☀️🌧️💨 for Paris (temperature, precipitation, wind speed) using the ``meteostat`` library:
@@ -145,11 +146,11 @@ model = xgb.XGBRegressor(
   tree_method="hist"
         )
 ```
-where the hyperparameters of the model (``n_estimators``: number of decision trees, more trees increase capacity but also slow training and risk overfitting ; ``max_depth``: maximum depth of trees, controls model complexity ; ``learning_rate``: step size per tree, balances speed vs precision ; ``subsample``: fraction of data per tree, adds randomness, reduces overfit ; ``colsample_bytree``: fraction of features per tree, improves robustness) were chosen somewhat arbitrarily. In a subsequent run, I optimized them using ``optuna``.
+where the hyperparameters of the model (``n_estimators``: number of decision trees, more trees increase capacity but also slow training and risk overfitting ; ``max_depth``: maximum depth of trees, controls model complexity ; ``learning_rate``: step size per tree, balances speed vs precision ; ``subsample``: fraction of data per tree, adds randomness, reduces overfit ; ``colsample_bytree``: fraction of features per tree, improves robustness) were chosen somewhat arbitrarily. In subsequent runs, I optimized the hyperparameters using ``optuna``.
 
-I wanted to check the impact of the district and of the weather so I performed three runs with the following features : {District code + hour + dayofweek} , {District code + hour + dayofweek + weather } and {District code  + hour + dayofweek + weather + type}.
+To check the impact of the district and of the weather so I performed three runs with the following features : {District code + hour + dayofweek} , {District code + hour + dayofweek + weather } and {District code  + hour + dayofweek + weather + type}.
 
-As my data are time-ordered, I employed a 5-fold ``TimeSeriesSplit``, training the model on progressively larger portions of the data (starting from ~1/6 of the dataset and growing to ~5/6), always testing on the subsequent chronological segment. This ensures the model is evaluated on future data relative to its training set, avoiding any look-ahead bias. 
+**Training Strategy** As my data are time-ordered, I employed a 5-fold ``TimeSeriesSplit``, training the model on progressively larger portions of the data (starting from ~1/6 of the dataset and growing to ~5/6), always testing on the subsequent chronological segment. This ensures the model is evaluated on future data relative to its training set, avoiding any look-ahead bias. This training strategy is optimal to have robust predictions 2-3 days in the future. Depending on the business case, the training strategy may be adapted. For instance, if the goal is customer-oriented (e.g., predicting bike availability 45 minutes in the future) or company-oriented (e.g., deciding how bikes should be redistributed to optimize availability), the training strategy may differ slightly (e.g., different folds, inclusion of lag features, etc.).
 
 ### Testing the crystal ball 🔮
 
