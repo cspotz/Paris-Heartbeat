@@ -159,14 +159,14 @@ After training, the model makes predictions on unseen data—time periods that c
 
 | Run | Features                                          | RMSE | R²                                             |
 | --- | ------------------------------------------------- | ---- | ---------------------------------------------- |
-| 1   | District code + hour + dayofweek                  |   59.6   |    0.73                                          |
-| 2   | District code + hour + dayofweek + weather        |   59.7   | 0.73 | 
-| 3   | District code + hour + dayofweek + weather + type | <span style="background-color:#d4f7d4">55.7</span>     | <span style="background-color:#d4f7d4">0.76</span> |
+| 1   | District code + hour + dayofweek                  |   63.5   |    0.71                                          |
+| 2   | District code + hour + dayofweek + weather        |   63.6   | 0.70 | 
+| 3   | District code + hour + dayofweek + weather + type | <span style="background-color:#d4f7d4">60.7</span>     | <span style="background-color:#d4f7d4">0.73</span> |
 
-This first try shows that adding the type of district helped a lot, while temperature doesn't seem to have much effect. It makes sense as except for the heavy rainfall of 10th september, the weather was pretty uniform during the time I fetched the Vélib data. 
+This first try shows that adding the type of district helps slightly a lot, while temperature doesn't seem to have much effect. It makes sense as except for the heavy rainfall of 10th september, the weather was pretty uniform during the time frame I fetched the Vélib data. 
 
 ### Tuning the hyperparameters with optuna
-The hyperparameters left fixed in the previous section are now varied using ``optuna`` which allows for an optimal search of the ideal parameters. After 30 trials, it selected :  ``n_estimators=189,  learning_rate=0.11,  max_depth=5,
+The hyperparameters left fixed in the previous section are now varied using ``optuna`` which allows for an optimal search of the ideal parameters. After 60 trials, it selected :  ``n_estimators=189,  learning_rate=0.11,  max_depth=5,
   subsample=0.97,  colsample_bytree=0.98`` as the best model with RMSE=50.1 and R²=0.91.
 
 
@@ -185,7 +185,7 @@ To get a more concrete sense of which features matter, I plotted a diagram of fe
 ![Performance of the model](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/resFIT.png)
 <p align="center"><em>Contribution of each feature to the final result</em></p>
 
-Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) a decade ago seemed to be 98% accurancy for the next 45 minutes using more than 80 features, so of course R²=0.9 is certainly perfectible. In the notebook, I added additional plots including time evolution of the residutes and a heatmap to see if the input features were correlated. 
+Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) a decade ago seemed to be 98% accurancy for the next 45 minutes using more than 80 features, so of course R²=0.9 is certainly perfectible. In the notebook, I added additional plots including prediction for the future, the time evolution of the residutes and a heatmap to see if the input features were correlated.
 
 
 All in all, I have had a fun time playing around this bikes data. [That](https://pierreauclair.org/blog/velibs.html) blog post was a good source of inspiration for the begining of this project. If I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset (for instance [that one](https://github.com/lovasoa/historique-velib-opendata)). I also [read](https://scikit-learn.org/stable/auto_examples/applications/plot_time_series_lagged_features.html) lag features (like the number of bikes available in the previous hour or the same hour on previous days) and rolling statistics (moving averages or rolling standard deviations) o capture persistence in bike usage. Essentially, by feeding the model both “what just happened” and “what has been happening,” it becomes much better at anticipating Paris’ heartbeats 🚴‍♂️💓, whether on a sunny weekday or a rainy afternoon. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
