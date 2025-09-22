@@ -166,19 +166,20 @@ After training, the model makes predictions on unseen data—time periods that c
 This first try shows that adding the type of district helps slightly a lot, while temperature doesn't seem to have much effect. It makes sense as except for the heavy rainfall of 10th september, the weather was pretty uniform during the time frame I fetched the Vélib data. 
 
 ### Tuning the hyperparameters with optuna
-The hyperparameters left fixed in the previous section are now varied using ``optuna`` which allows for an optimal search of the ideal parameters. After 60 trials, it selected :  ``n_estimators=189,  learning_rate=0.11,  max_depth=5,
-  subsample=0.97,  colsample_bytree=0.98`` as the best model with RMSE=50.1 and R²=0.91.
+The hyperparameters left fixed in the previous section are now varied using ``optuna`` which allows for an optimal search of the ideal parameters. After 60 trials, it selected :  ``n_estimators=711,  learning_rate=0.28,  max_depth=8,
+  subsample=0.58,  colsample_bytree=0.77`` as the <u> best model </u> with **RMSE=54.8** and **R²=0.96**. This configuration pushes the model toward maximum predictive performance, with deeper trees and many boosting rounds increasing the risk of overfitting — a risk that is partly mitigated by the low learning rate and subsampling regularization.
 
 
 Here is a sample of the predictions:
 
-| district       | type        | hour | dayofweek | temperature | precip | wind_speed | y_true | y_pred      |
-|----------------|------------|------|-----------|------------|--------|------------|--------|------------|
-| Arts-et-Métiers| Business    | 2    | 0         | 16.5       | 0.0    | 5.5        | 38     | 52.539246  |
-| Belleville     | Residential | 3    | 6         | 15.6       | 0.0    | 3.7        | 30     | 79.792419  |
-| Bercy          | Tourism     | 6    | 6         | 15.5       | 0.0    | 10.4       | 249    | 229.692734 |
-| Champs-Elysées | Business    | 12   | 6         | 25.7       | 0.0    | 8.3        | 156    | 117.166687 |
-| Père-Lachaise  | Residential | 0    | 6         | 16.8       | 0.0    | 9.7        | 125    | 129.630432 |
+| district        | type        | hour | dayofweek | temperature | precip | wind_speed | y_true | y_pred     |
+|-----------------|-------------|------|-----------|-------------|--------|------------|--------|------------|
+| Arts-et-Métiers | Tourism     | 14   | 4         | 28.4        | 0.0    | 10.1       | 55     | 42.325352  |
+| Belleville      | Residential | 18   | 6         | 14.1        | 0.5    | 12.6       | 60     | 50.216236  |
+| Bercy           | Business    | 23   | 4         | 20.7        | 0.0    | 10.8       | 233    | 227.199783 |
+| Champs-Elysées  | Business    | 15   | 6         | 17.7        | 0.0    | 7.6        | 201    | 176.656204 |
+| Père-Lachaise   | Residential | 20   | 5         | 19.5        | 0.0    | 13.3       | 71     | 77.647186  |
+
 
 To get a more concrete sense of which features matter, I plotted a diagram of feature importance along with the prediction of the model vs the actual data :
 
