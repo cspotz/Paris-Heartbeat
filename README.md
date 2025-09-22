@@ -181,15 +181,21 @@ Here is a sample of the predictions:
 | Père-Lachaise   | Residential | 20   | 5         | 19.5        | 0.0    | 13.3       | 71     | 77.647186  |
 
 
-To get a more concrete sense of which features matter, I plotted a diagram of feature importance along with the prediction of the model vs the actual data :
+To get a more concrete sense of which features matter, I plotted a diagram of feature importance along with the prediction of the model vs the actual data:
 
 ![Performance of the model](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/resFIT.png)
-<p align="center"><em>Contribution of each feature to the final result</em></p>
+<p align="center"><em>Performance of the model and contribution of each feature to the final result</em></p>
 
-Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) a decade ago seemed to be 98% accurancy for the next 45 minutes using more than 80 features, so of course R²=0.9 is certainly perfectible. In the notebook, I added additional plots including prediction for the future, the time evolution of the residutes and a heatmap to see if the input features were correlated.
+Using the weather forecast, here is the 3-day prediction of the model for the district studied earlier:
 
+![Predictions of the model](https://github.com/cspotz/Paris-Heartbeat/blob/main/images/predic.png)
+<p align="center"><em>3-day prediction of the model for some selected districts</em></p>
 
-All in all, I have had a fun time playing around this bikes data. [That](https://pierreauclair.org/blog/velibs.html) blog post was a good source of inspiration for the begining of this project. If I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset (for instance [that one](https://github.com/lovasoa/historique-velib-opendata)). I also [read](https://scikit-learn.org/stable/auto_examples/applications/plot_time_series_lagged_features.html) lag features (like the number of bikes available in the previous hour or the same hour on previous days) and rolling statistics (moving averages or rolling standard deviations) o capture persistence in bike usage. Essentially, by feeding the model both “what just happened” and “what has been happening,” it becomes much better at anticipating Paris’ heartbeats 🚴‍♂️💓, whether on a sunny weekday or a rainy afternoon. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
+Ok, [state of the art](https://www.20minutes.fr/paris/1767487-20160118-paris-bike-predict-application-lit-avenir-stations-velib) a decade ago seemed to be 98% accuracy for the next 45 minutes using more than 80 features, so of course R²=0.96 is certainly perfectible. In the notebook, I added additional plots including the time evolution of the residuals and a heatmap to see if the input features were correlated.
+
+All in all, I have had a fun time playing around this bikes data. [That](https://pierreauclair.org/blog/velibs.html) blog post was a good source of inspiration for the begining of this project. I also learned quite a lot of things including the fact (that maybe I somewhat knew deep inside me) that the company in charge of the bike is moving them (with trucks...) during the night to balance the effect of the day.
+
+If I were to improve my model, I would incorporate additional features like station altitude, public holidays, and strike days, use a more powerful machine than my laptop, and—most importantly—train on a much larger dataset (for instance [that one](https://github.com/lovasoa/historique-velib-opendata)). I also [read](https://scikit-learn.org/stable/auto_examples/applications/plot_time_series_lagged_features.html) lag features (like the number of bikes available in the previous hour or the same hour on previous days) and rolling statistics (moving averages or rolling standard deviations) o capture persistence in bike usage. Essentially, by feeding the model both “what just happened” and “what has been happening,” it becomes much better at anticipating Paris’ heartbeats 🚴‍♂️💓, whether on a sunny weekday or a rainy afternoon. Coming from a physics background, I noted the common data science practice of often overlooking proper error propagation and uncertainty quantification (which I also omitted here); incorporating these, for instance in the district classification, would undoubtedly refine the results.
 
 
 
